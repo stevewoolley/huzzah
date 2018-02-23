@@ -4,6 +4,12 @@ import hcsr04
 import dht
 import machine
 
+# case specific values YMMV
+HC_TRIGGER_PIN = 13
+HC_ECHO_PIN = 16
+DHT_PIN = 2
+WEB_PORT = 80
+
 HTTP_STATUS_CODES = {200: 'OK',
                      404: 'Not Found',
                      500: 'Internal Server Error',
@@ -31,8 +37,8 @@ Content-length: {length}
 
 
 def index():
-    hc = hcsr04.HCSR04(13, 16)
-    dht22 = dht.DHT22(machine.Pin(2))
+    hc = hcsr04.HCSR04(HC_TRIGGER_PIN, HC_ECHO_PIN)
+    dht22 = dht.DHT22(machine.Pin(DHT_PIN))
     dht22.measure()
     html = "<p>Distance: {} cm</p>".format(hc.distance())
     html += "<p>Temperature: {} C</p>".format(dht22.temperature())
@@ -43,7 +49,7 @@ def index():
 
 
 def distance():
-    hc = hcsr04.HCSR04(13, 16)
+    hc = hcsr04.HCSR04(HC_TRIGGER_PIN, HC_ECHO_PIN)
     data = json.dumps({'distance': hc.distance()})
     return JSON.format(200,
                        HTTP_STATUS_CODES[200],
@@ -51,7 +57,7 @@ def distance():
 
 
 def temperature():
-    dht22 = dht.DHT22(machine.Pin(2))
+    dht22 = dht.DHT22(machine.Pin(DHT_PIN))
     dht22.measure()
     data = json.dumps({'temperature': dht22.temperature()})
     return JSON.format(200,
@@ -60,7 +66,7 @@ def temperature():
 
 
 def humidity():
-    dht22 = dht.DHT22(machine.Pin(2))
+    dht22 = dht.DHT22(machine.Pin(DHT_PIN))
     dht22.measure()
     data = json.dumps({'humidity': dht22.humidity()})
     return JSON.format(200,
@@ -82,7 +88,7 @@ ROUTES = [
 ]
 
 if __name__ == "__main__":
-    addr = socket.getaddrinfo("0.0.0.0", 80)[0][-1]
+    addr = socket.getaddrinfo("0.0.0.0", WEB_PORT)[0][-1]
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(addr)
     s.listen(1)
@@ -98,6 +104,7 @@ if __name__ == "__main__":
             line = cl_file.readline()
             if not line or line == b'\r\n':
                 break
+        # cycle through routes looking for url
         found = False
         for e in ROUTES:
             pattern = e[0]
@@ -109,5 +116,5 @@ if __name__ == "__main__":
             cl.send(error(404).encode('utf-8'))
         else:
             cl.send(handler().encode('utf-8'))
-        # cl.shutdown(socket.SHUT_RDWR)
+        # cl.shutdown(socket.SHUT_RDWR) # this not supported in micropython version of socket
         cl.close()
