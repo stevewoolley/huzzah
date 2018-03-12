@@ -4,7 +4,7 @@ def do_connect():
     if not sta_if.isconnected():
         print('connecting to network...')
         sta_if.active(True)
-        sta_if.connect('<essid>', '<password>')
+        sta_if.connect('i3wpa', 'I3wPak3y')
         while not sta_if.isconnected():
             pass
     print('network config:', sta_if.ifconfig())
@@ -12,3 +12,6 @@ def do_connect():
     if not ap_if.isconnected():
         print('disabling access point interface')
         ap_if.active(False)
+
+
+do_connect()

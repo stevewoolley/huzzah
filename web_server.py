@@ -1,12 +1,6 @@
 import socket
 import json
-from lib import hcsr04
-import dht
-import machine
 
-HC_TRIGGER_PIN = 0
-HC_ECHO_PIN = 0
-DHT_PIN = 4
 #
 WEB_PORT = 80
 
@@ -37,46 +31,10 @@ Content-length: {length}
 
 
 def index():
-    html = ""
-    # if HC_TRIGGER_PIN != 0 and HC_ECHO_PIN != 0:
-    #     hc = hcsr04.HCSR04(HC_TRIGGER_PIN, HC_ECHO_PIN)
-    #     html += "<p>Distance: {} cm</p>".format(hc.distance())
-    dht22 = dht.DHT22(machine.Pin(DHT_PIN))
-    dht22.measure()
-    html += "<p>Temperature: {} C</p>".format(dht22.temperature())
-    html += "<p>Humidity: {} %</p>".format(dht22.humidity())
+    html = "<p>Hello World!</p>"
     return HTML.format(200,
                        HTTP_STATUS_CODES[200],
                        WEB_PAGE.format(html))
-
-
-def distance():
-    if HC_TRIGGER_PIN != 0 and HC_ECHO_PIN != 0:
-        hc = hcsr04.HCSR04(HC_TRIGGER_PIN, HC_ECHO_PIN)
-        data = json.dumps({'distance': hc.distance()})
-        return JSON.format(200,
-                           HTTP_STATUS_CODES[200],
-                           length=len(data), json=data)
-    else:
-        return None
-
-
-def temperature():
-    dht22 = dht.DHT22(machine.Pin(DHT_PIN))
-    dht22.measure()
-    data = json.dumps({'temperature': dht22.temperature()})
-    return JSON.format(200,
-                       HTTP_STATUS_CODES[200],
-                       length=len(data), json=data)
-
-
-def humidity():
-    dht22 = dht.DHT22(machine.Pin(DHT_PIN))
-    dht22.measure()
-    data = json.dumps({'humidity': dht22.humidity()})
-    return JSON.format(200,
-                       HTTP_STATUS_CODES[200],
-                       length=len(data), json=data)
 
 
 def error(code):
@@ -86,10 +44,7 @@ def error(code):
 
 
 ROUTES = [
-    ("/", index),
-    ("/temperature", temperature),
-    ("/distance", distance),
-    ("/humidity", humidity)
+    ("/", index)
 ]
 
 if __name__ == "__main__":

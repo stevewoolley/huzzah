@@ -2,3 +2,6 @@
 .idea
 /venv
 *.xml
+*.json
+/wifi-office.py
+/wifi-home.py
