@@ -22,7 +22,7 @@ WORKDIR /micropython/ports/unix
 
 RUN \
   make axtls && \
-  make
+  make install
 
 WORKDIR /
 
@@ -35,4 +35,4 @@ RUN make install
 
 WORKDIR /root
 
-ENTRYPOINT ["/micropython/ports/unix/micropython"]
+CMD ["micropython"]
