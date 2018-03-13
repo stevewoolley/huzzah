@@ -1,5 +1,5 @@
 # Network connectivity
-The ESP8266 family (generally) has wifi connectivity.
+The ESP8266/ESP8285 families (generally) have wifi connectivity.
 
 Once the unit has micropython installed, 
 here is a function you can and put in your boot.py file to automatically connect to your WiFi network:
@@ -19,5 +19,7 @@ def do_connect():
     if not ap_if.isconnected():    
         print('disabling access point interface')
         ap_if.active(False)
+
+do_connect()
 ```
 

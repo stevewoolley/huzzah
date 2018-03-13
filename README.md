@@ -7,7 +7,9 @@ AWS IoT uses server-side and client-side certs. Unfortunately the horsepower req
 So will have to follow another path to use AWS IoT.
 
 ## Sub Projects
-### [Whole house humidifier](http://a.co/2FSgxHa) 
+### Whole house humidifier
+Purchased: [Whole house humidifier](http://a.co/2FSgxHa) 
+
 I keep forgetting to refill the damn thing with water. 
 It uses about 2 gallons of water a day during dry months, and runs dry constantly.
 It also is very poor at detecting the humidity. 
