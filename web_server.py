@@ -1,5 +1,4 @@
 import socket
-import json
 
 #
 WEB_PORT = 80

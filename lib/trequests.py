@@ -1,4 +1,4 @@
-import usocket
+import socket
 
 
 class Response:
@@ -32,8 +32,8 @@ class Response:
         return str(self.content, self.encoding)
 
     def json(self):
-        import ujson
-        return ujson.loads(self.content)
+        import json
+        return json.loads(self.content)
 
 
 def request(method, url, data=None, json=None, headers={}, stream=None):
@@ -54,9 +54,9 @@ def request(method, url, data=None, json=None, headers={}, stream=None):
         host, port = host.split(":", 1)
         port = int(port)
 
-    ai = usocket.getaddrinfo(host, port)
+    ai = socket.getaddrinfo(host, port)
     addr = ai[0][-1]
-    s = usocket.socket()
+    s = socket.socket()
     s.connect(addr)
     if proto == "https:":
         s = ussl.wrap_socket(s, server_hostname=host)

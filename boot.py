@@ -1,1 +1,1 @@
-# This file is executed on every boot (including wake-boot from deepsleep)import espesp.osdebug(None)import gcgc.collect()
+# This file is executed on every boot (including wake-boot from deepsleep)import espimport utilsimport gcesp.osdebug(None)utils.do_connect()gc.collect()
