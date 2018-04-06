@@ -18,4 +18,5 @@ try:
 except Exception as e:
     print("exception {}".format(e))
 
-esp.deepsleep(300 * 1000000)
+# 30 minutes
+esp.deepsleep(30 * 60 * 1000000)
