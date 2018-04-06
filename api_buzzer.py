@@ -3,8 +3,9 @@ import json
 from lib import buzzer
 
 BUZZER_PIN = 13
-#
+BUZZER = buzzer.Buzzer(BUZZER_PIN)
 WEB_PORT = 80
+#
 
 HTTP_STATUS_CODES = {200: 'OK',
                      404: 'Not Found',
@@ -31,7 +32,6 @@ Content-length: {length}
 
 {json}"""
 
-BUZZER = buzzer.Buzzer(BUZZER_PIN)
 
 def index():
     html = ""
@@ -46,50 +46,73 @@ def error(code):
                        WEB_PAGE.format("<h1>Error {0} {1}</h1>".format(code, HTTP_STATUS_CODES[code])))
 
 
-def beep():
+def beep(beeps=2):
+    data = json.dumps({'beep': beeps})
     if BUZZER_PIN != 0:
-        BUZZER.beep(2)
-        data = json.dumps({})
-        return JSON.format(200,
-                           HTTP_STATUS_CODES[200],
-                           length=len(data), json=data)
+        try:
+            BUZZER.beep(int(beeps))
+            return JSON.format(200,
+                               HTTP_STATUS_CODES[200],
+                               length=len(data), json=data)
+        except Exception as e:
+            return JSON.format(500,
+                               HTTP_STATUS_CODES[500],
+                               length=len(data), json=data)
     else:
-        return None
+        return JSON.format(500,
+                           HTTP_STATUS_CODES[500],
+                           length=len(data), json=data)
 
 
 ROUTES = [
-    ("/", index),
-    ("/beep", beep)
+    ("", index),
+    ("beep", beep)
 ]
 
-if __name__ == "__main__":
-    addr = socket.getaddrinfo("0.0.0.0", WEB_PORT)[0][-1]
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(addr)
-    s.listen(1)
 
-    print("Listening on {}".format(addr))
+def dec_strip(txt):
+    return txt.decode().rstrip()
+
+
+if __name__ == "__main__":
+    s = socket.socket()
+    ai = socket.getaddrinfo("0.0.0.0", WEB_PORT)
+    print("Listening on {}".format(ai))
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(ai[0][-1])
+    s.listen(5)
 
     while True:
-        cl, ai = s.accept()
-        print('client connected from {}'.format(ai))
-        cl_file = cl.makefile('rwb', 0)
-        (method, url, version) = cl_file.readline().split(b" ")
+        res = s.accept()
+        client_sock = res[0]
+        client_addr = res[1]
+        client_stream = client_sock
+        req = client_stream.readline()
+        (req_method, req_url, req_version) = req.split(b" ")
+        url = dec_strip(req_url).split('/')
+        # print("Method: {}".format(dec_strip(req_method)))
+        # print("URL: {}".format(dec_strip(req_url)))
+        # print("Version: {}".format(dec_strip(req_version)))
         while True:
-            line = cl_file.readline()
-            if not line or line == b'\r\n':
+            h = client_stream.readline()
+            if h == b"" or h == b"\r\n":
                 break
+            # print(dec_strip(h)) # print more request
+
         # cycle through routes looking for url
         found = False
         for e in ROUTES:
             pattern = e[0]
             handler = e[1]
-            if url.decode() == pattern:
+            if url[1] == pattern:
                 found = True
                 break
         if not found:
-            cl.send(error(404).encode('utf-8'))
+            client_stream.send(error(404).encode('utf-8'))
         else:
-            cl.send(handler().encode('utf-8'))
-        # cl.shutdown(socket.SHUT_RDWR) # this not supported in micropython version of socket
-        cl.close()
+            if len(url) == 2:
+                client_stream.send(handler().encode('utf-8'))
+            else:
+                client_stream.send(handler(url[2]).encode('utf-8'))
+
+        client_stream.close()
